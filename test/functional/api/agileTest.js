@@ -357,7 +357,31 @@ describe("PUT /users/:id/vote", () => {
       });
     });
 
-
+    describe("POST /reviews", () => {
+      it("should return confirmation message and update datastore", () => {
+        const review = {
+          review: "very good",
+          upvotes: 0
+        };
+        return request(server)
+          .post("/reviews")
+          .send(review)
+          .expect(200)
+          .then(res => {
+            expect(res.body.message).equals("Review Successfully Added!");
+            validID = res.body.data._id;
+          });
+      });
+      after(() => {
+        return request(server)
+          .get(`/reviews/${validID}`)
+          .expect(200)
+          .then(res => {
+            expect(res.body[0]).to.have.property("review", "very good");
+           
+          });
+      });
+    });
     
 
 
