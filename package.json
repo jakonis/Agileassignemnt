@@ -1,0 +1,33 @@
+{
+  "name": "assignment",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "babel-node": "./node_modules/.bin/babel-node",
+    "test": "mocha test/functional/api/agileTest.js --timeout 15000 --exit "
+  },
+  "dependencies": {
+    "body-parser": "~1.13.2",
+    "chai-http": "^4.3.0",
+    "cookie-parser": "^1.3.5",
+    "debug": "~2.2.0",
+    "ejs": "~2.3.3",
+    "express": "^4.13.4",
+    "fuse.js": "^3.4.5",
+    "http-error": "0.0.6",
+    "http-errors": "^1.7.3",
+    "mongoose": "^5.7.3",
+    "morgan": "^1.6.1",
+    "serve-favicon": "~2.3.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "chai": "^4.2.0",
+    "json-server": "^0.15.1",
+    "mocha": "^6.2.2",
+    "mongodb-memory-server": "^5.2.11",
+    "supertest": "^4.0.2"
+  }
+}
