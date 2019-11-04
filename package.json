@@ -3,10 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "cross-env NODE_ENV=dev PORT=3001 node dist/bin/www",
     "babel-node": "./node_modules/.bin/babel-node",
     "test": "mocha test/functional/api/agileTest.js",
-    "compile": "babel ./ --out-dir dist/ --ignore ./node_modules,./test --copy-files"
+    "compile": "babel ./ --out-dir dist/ --ignore ./node_modules,./test --copy-files",
+    "build": "npm run compile",
+    "clean": "rimraf ./dist && mkdir dist",
+    "postbuild": "npm start",
+    "prebuild": "npm-run-all test clean"
   },
   "dependencies": {
     "@babel/runtime": "^7.6.3",
@@ -37,6 +41,8 @@
     "json-server": "^0.15.1",
     "mocha": "^6.2.2",
     "mongodb-memory-server": "^5.2.11",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.0",
     "supertest": "^4.0.2"
   }
 }
