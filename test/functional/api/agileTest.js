@@ -65,7 +65,7 @@ describe("Userss", () => {
 
 
 describe("GET /users", () => {
-  it("should GET all the users", done => {
+  it("should GET all the userss", done => {
     request(server)
       .get("/users")
       .set("Accept", "application/json")
@@ -192,7 +192,55 @@ describe("PUT /users/:id/vote", () => {
     });
   });
 
+  describe('DELETE /users/:id', function () {
+    describe('when id is valid', function () {
+        it('should return a confirmation message and the deleted user', function(done) {
+            chai.request(server)
+                .delete('/users/1000001')
+                .end( (err, res) => {
+                    expect(res).to.have.status(200);
+                    expect(res.body).to.have.property('message','User NOT DELETED!' ) ;
+                    done();
+                });
+        });
+        after(function  (done) {
+            chai.request(server)
+                .get('/users')
+                .end(function(err, res) {
+                    expect(res).to.have.status(200);
+                    expect(res.body).be.be.a('array');
+                    let result = _.map(res.body, function (user) {
+                        return { user: user.user, 
+                            address: user.address,
+                          gender: user.gender };
+                    }  );
+                    expect(result).to.not.include( { user: 'Alanas', address: "New Ross", gender: "Male"  } );
+                    done();
+                });
+        });
+    });
+    describe('when id is invalid', function () {
+        it('should return an error message', function(done) {
+            chai.request(server)
+                .delete('/users/1000002')
+                .end( (err, res) => {
+                    expect(res).to.have.status(200);
+                    expect(res.body).to.have.property('message','User NOT DELETED!' ) ;
+                    done();
+                });
+        });
+    });
+  });
+  });
 
+
+
+  
+
+
+
+
+    
 
 
 
@@ -200,5 +248,7 @@ describe("PUT /users/:id/vote", () => {
 
 
 });
-});
+
+
+
 
