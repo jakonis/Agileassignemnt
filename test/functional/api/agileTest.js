@@ -383,7 +383,32 @@ describe("PUT /users/:id/vote", () => {
       });
     });
     
-
+    describe("PUT /reviews/:id/vote", () => {
+      describe("when the id is valid", () => {
+        it("should return a message and the review upvoted by 1", () => {
+          return request(server)
+            .put(`/reviews/${validID}/vote`)
+            .expect(200)
+        });
+        after(() => {
+          return request(server)
+            .get(`/reviews/${validID}`)
+            .set("Accept", "application/json")
+            .expect("Content-Type", /json/)
+            .expect(200)
+            .then(resp => {
+              expect(resp.body[0]).to.have.property("upvotes", 1);
+            });
+        });
+      });
+      describe("when the id is invalid", () => {
+        it("should return a 404 and a message for invalid review id", () => {
+          return request(server)
+            .put("/reviews/1100001/vote")
+            .expect(200);
+      });
+    });
+  });
 
 
 
