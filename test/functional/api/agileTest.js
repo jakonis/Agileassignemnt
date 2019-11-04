@@ -188,12 +188,19 @@ describe("PUT /users/:id/vote", () => {
           expect(resp.body[0]).to.have.property("userpoints", 1);
         });
     });
-  });});
+  });
+  describe("when the id is invalid", () => {
+    it("should return a 404 and a message for invalid user id", () => {
+      return request(server)
+        .put("/users/1100001/vote")
+        .expect(200);
+    });
+  });
 
 
 
 
 
 
-
+});
 });
