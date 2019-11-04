@@ -251,7 +251,84 @@ describe("PUT /users/:id/vote", () => {
     });
   });
 
-
+  describe("Reviewss", () => {
+    before(async () => {
+      try {
+        mongod = new MongoMemoryServer({
+          instance: {
+            port: 27017,
+            dbPath: "./test/database",
+            dbName: "reviewsdb" // by default generate random dbName
+          }
+        });
+        // Async Trick - this ensures the database is created before 
+        // we try to connect to it or start the server
+        await mongod.getConnectionString();
+   
+        mongoose.connect("mongodb://localhost:27017/reviewsdb", {
+          useNewUrlParser: true,
+          useUnifiedTopology: true
+        });
+        server = require("../../../bin/www");
+        db = mongoose.connection;
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  
+    after(async () => {
+      try {
+        await db.dropDatabase();
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  
+    beforeEach(async () => {
+      try {
+        await Review.deleteMany({});
+        let review = new Review();
+        review.review = "visa";
+        review.upvotes = 2;
+        await review.save();
+        review = new Review();
+        review.review = "very bad";
+        await review.save();
+        validID = review._id;
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  
+    describe("GET /reviews", () => {
+      it("should GET all the reviews", done => {
+        request(server)
+          .get("/reviews")
+          .set("Accept", "application/json")
+          .expect("Content-Type", /json/)
+          .expect(200)
+          .end((err, res) => {
+            try {
+              expect(res.body).to.be.a("array");
+              expect(res.body.length).to.equal(2);
+              let result = _.map(res.body, review => {
+                return {
+                  review: review.review
+                };
+              });
+              expect(result).to.deep.include({
+                review: "visa"
+              });
+              expect(result).to.deep.include({
+                review: "visa"
+              });
+              done();
+            } catch (e) {
+              done(e);
+            }
+          });
+      });
+    });
 
 
 
@@ -263,7 +340,7 @@ describe("PUT /users/:id/vote", () => {
 
 
 });
-
+});
 
 
 
