@@ -1,16 +1,12 @@
 /*eslint no-unused-vars: "off" */
-var express = require("express")
-var path = require("path")
+const express = require("express")
+const path = require("path")
 let favicon = require("serve-favicon")
-var logger = require("morgan")
-var cookieParser = require("cookie-parser")
+const logger = require("morgan")
+const cookieParser = require("cookie-parser")
 let bodyParser = require("body-parser")
 
 let createError = require("http-errors")
-var express = require("express")
-var path = require("path")
-var cookieParser = require("cookie-parser")
-var logger = require("morgan")
 
 let indexRouter = require("./routes/index")
 let usersRouter = require("./routes/users")
