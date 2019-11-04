@@ -1,9 +1,9 @@
-let mongoose = require('mongoose');
+let mongoose = require("mongoose")
 
 let ReviewSchema = new mongoose.Schema({
-        review: String,
-        upvotes: {type: Number, default: 0}
-    },
-    { collection: 'reviews' });
+  review: String,
+  upvotes: {type: Number, default: 0}
+},
+{ collection: "reviews" })
 
-module.exports = mongoose.model('Review', ReviewSchema);
+module.exports = mongoose.model("Review", ReviewSchema)
