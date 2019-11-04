@@ -1,12 +1,16 @@
-let mongoose = require('mongoose');
+"use strict";
 
-let UserSchema = new mongoose.Schema({
+var mongoose = require('mongoose');
 
-        user: String,
-        address: String,
-        gender: String,
-        userpoints: {type: Number, default: 0}
-    },
-    { collection: 'users' });
-
+var UserSchema = new mongoose.Schema({
+  user: String,
+  address: String,
+  gender: String,
+  userpoints: {
+    type: Number,
+    default: 0
+  }
+}, {
+  collection: 'users'
+});
 module.exports = mongoose.model('User', UserSchema);

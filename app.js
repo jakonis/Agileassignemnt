@@ -1,96 +1,100 @@
+"use strict";
+
 var express = require('express');
+
 var path = require('path');
+
 var favicon = require('serve-favicon');
+
 var logger = require('morgan');
+
 var cookieParser = require('cookie-parser');
+
 var bodyParser = require('body-parser');
 
 var createError = require('http-errors');
+
 var express = require('express');
+
 var path = require('path');
+
 var cookieParser = require('cookie-parser');
+
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
+
 var usersRouter = require('./routes/users');
 
-const reviews = require('./routes/reviews');
-const users = require('./routes/users');
+var reviews = require('./routes/reviews');
 
-var app = express();
+var users = require('./routes/users');
 
-// view engine setup
+var app = express(); // view engine setup
+
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
-// uncomment after placing your favicon in /public
+app.set('view engine', 'ejs'); // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-if (process.env.NODE_ENV !== "test") {  
-  app.use(logger("dev"))
+
+if (process.env.NODE_ENV !== "test") {
+  app.use(logger("dev"));
 }
+
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({
+  extended: false
+}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
 app.get('/reviews/votes', reviews.findTotalVotes);
-app.post('/reviews',reviews.addReview);
+app.post('/reviews', reviews.addReview);
 app.get('/reviews', reviews.findAll);
 app.get('/reviews/:id', reviews.findOne);
 app.put('/reviews/:id/vote', reviews.incrementUpvotes);
 app.delete('/reviews/:id', reviews.deleteReview);
-
-app.post('/users',users.addUser);
+app.post('/users', users.addUser);
 app.post('/users/search', users.findFuzzy);
 app.get('/users', users.findAll);
 app.get('/users/votes', users.findTotalVotes);
 app.get('/users/:id', users.findOne);
 app.put('/users/:id/vote', users.incrementUppoints);
-app.delete('/users/:id', users.deleteUser);
+app.delete('/users/:id', users.deleteUser); // catch 404 and forward to error handler
 
+app.use(function (req, res, next) {
+  var err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+}); // error handlers
+// development error handler
+// will print stacktrace
 
-
-
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
-  });
-  
-  // error handlers
-  
-  // development error handler
-  // will print stacktrace
-  if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
-      res.status(err.status || 500);
-      res.render('error', {
-        message: err.message,
-        error: err
-      });
-    });
-  }
-  
-  // production error handler
-  // no stacktraces leaked to user
-  app.use(function(err, req, res, next) {
+if (app.get('env') === 'development') {
+  app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
       message: err.message,
-      error: {}
+      error: err
     });
   });
-  
+} // production error handler
+// no stacktraces leaked to user
 
 
+app.use(function (err, req, res, next) {
+  res.status(err.status || 500);
+  res.render('error', {
+    message: err.message,
+    error: {}
+  });
+});
 module.exports = app;
