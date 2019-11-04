@@ -1,4 +1,4 @@
-var express = require('express');
+import express from "express";
 var router = express.Router();
 let mongoose = require('mongoose');
 let User = require('../models/users');

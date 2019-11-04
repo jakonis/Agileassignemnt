@@ -1,2 +1,5 @@
 file:
-    - test/functional/api/donationsTest.js
+    - test/functional/api/agileTest.js
+require: '@babel/register'
+timeout: 6000
+exit: true

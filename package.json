@@ -10,7 +10,11 @@
     "build": "npm run compile",
     "clean": "rimraf ./dist && mkdir dist",
     "postbuild": "npm start",
-    "prebuild": "npm-run-all test clean"
+    "prebuild": "npm-run-all test clean",
+    "start:watch": "cross-env NODE_ENV=dev nodemon --exec babel-node bin/www",
+    "lint": "esw  ./test ./routes ./models/ app.js bin/www ",
+    "lint:fix": "npm run lint -- --fix",
+    "lint:watch": "npm run lint -- --watch"
   },
   "dependencies": {
     "@babel/runtime": "^7.6.3",
@@ -38,9 +42,12 @@
     "babel-preset-env": "^1.7.0",
     "chai": "^4.2.0",
     "cross-env": "^6.0.3",
+    "eslint": "^6.6.0",
+    "eslint-watch": "^6.0.1",
     "json-server": "^0.15.1",
     "mocha": "^6.2.2",
     "mongodb-memory-server": "^5.2.11",
+    "nodemon": "^1.19.4",
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.0",
     "supertest": "^4.0.2"
