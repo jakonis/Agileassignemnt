@@ -137,7 +137,33 @@ describe("GET /users/:id", () => {
   });
 });
 
-
+describe("POST /users", () => {
+  it("should return confirmation message and update datastore", () => {
+    const user = {
+      user: "Alanas",
+      address: "New Ross",
+      gender: "Female"
+    };
+    return request(server)
+      .post("/users")
+      .send(user)
+      .expect(200)
+      .then(res => {
+        expect(res.body.message).equals("User Successfully Added!");
+        validID = res.body.data._id;
+      });
+  });
+  after(() => {
+    return request(server)
+      .get(`/users/${validID}`)
+      .expect(200)
+      .then(res => {
+        expect(res.body[0]).to.have.property("user", "Alanas");
+        expect(res.body[0]).to.have.property("address", "New Ross");
+        expect(res.body[0]).to.have.property("gender", "Female");
+      });
+  });
+});
 
 
 
