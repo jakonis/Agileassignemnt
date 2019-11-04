@@ -235,7 +235,22 @@ describe("PUT /users/:id/vote", () => {
 
 
 
-  
+  describe("POST /users/search", () => {
+    it("should work like a fuzzy search so should return users without full title", () => {
+      const search = {
+       value:"Al"
+      };
+      return request(server)
+        .post("/users/search")
+        .send(search)
+        .expect(200)
+        .then(res => {
+          expect(res.body.result[0]).to.have.property("user", "Alanas");
+		  expect(res.body.result.length).to.equal(2);
+        });
+    });
+  });
+
 
 
 
