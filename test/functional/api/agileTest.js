@@ -165,7 +165,30 @@ describe("POST /users", () => {
   });
 });
 
-
+describe("PUT /users/:id/vote", () => {
+  describe("when the id is valid", () => {
+    it("should return a message and the user upvoted by 1", () => {
+      return request(server)
+        .put(`/users/${validID}/vote`)
+        .expect(200)
+        .then(resp => {
+          expect(resp.body).to.include({
+            message: "User Successfully Upvoted!"
+          });
+          expect(resp.body.data).to.have.property("userpoints", 1);
+        });
+    });
+    after(() => {
+      return request(server)
+        .get(`/users/${validID}`)
+        .set("Accept", "application/json")
+        .expect("Content-Type", /json/)
+        .expect(200)
+        .then(resp => {
+          expect(resp.body[0]).to.have.property("userpoints", 1);
+        });
+    });
+  });});
 
 
 
