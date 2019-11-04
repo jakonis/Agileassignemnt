@@ -339,7 +339,33 @@ describe("Userss", () => {
               });
             });
 
-
+            describe("GET /reviews/:id", () => {
+                describe("when the id is valid", () => {
+                  it("should return the matching review", done => {
+                    request(server)
+                      .get(`/reviews/${validID}`)
+                      .set("Accept", "application/json")
+                      .expect("Content-Type", /json/)
+                      .expect(200)
+                      .end((err, res) => {
+                        done(err);
+                      });
+                  });
+                });
+                describe("when the id is invalid", () => {
+                  it("should return the NOT found message", done => {
+                    request(server)
+                      .get("/reviews/9999")
+                      .set("Accept", "application/json")
+                      .expect("Content-Type", /json/)
+                      .expect(200)
+                      .end((err, res) => {
+                        expect(res.body.message).equals("Review NOT Found!");
+                        done(err);
+                      });
+                  });
+                });
+              });
 
 
 
