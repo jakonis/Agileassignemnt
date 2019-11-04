@@ -98,4 +98,49 @@ describe("GET /users", () => {
         }
       });
   });
-})});
+});
+
+describe("GET /users/:id", () => {
+  describe("when the id is valid", () => {
+    it("should return the matching user", done => {
+      request(server)
+        .get(`/users/${validID}`)
+        .set("Accept", "application/json")
+        .expect("Content-Type", /json/)
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body[0]).to.have.property("user", "Alanas");
+          expect(res.body[0]).to.have.property("address", "New Ross");
+          expect(res.body[0]).to.have.property("gender", "Female");
+          done(err);
+        });
+    });
+  });
+  describe("when the id is invalid", () => {
+    it("should return the NOT found message", done => {
+      request(server)
+        .get("/users/9999")
+        .set("Accept", "application/json")
+        .expect("Content-Type", /json/)
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body.message).equals("User NOT Found!");
+          done(err);
+        });
+    });
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+});
+
