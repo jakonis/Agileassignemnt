@@ -2,12 +2,18 @@ const chai = require("chai"), chaiHttp = require('chai-http');
 const expect = chai.expect;
 const request = require("supertest");
 const MongoMemoryServer = require("mongodb-memory-server").MongoMemoryServer;
+const Review = require("../../../models/reviews");
 const User = require("../../../models/users");
 const mongoose = require("mongoose");
+
+
+
 const _ = require("lodash");
 let server;
 let mongod;
 let db, validID;
+
+
 chai.use(chaiHttp);
 
 describe("Userss", () => {
@@ -65,7 +71,7 @@ describe("Userss", () => {
 
 
 describe("GET /users", () => {
-  it("should GET all the userss", done => {
+  it("should GET all the users", done => {
     request(server)
       .get("/users")
       .set("Accept", "application/json")
@@ -159,7 +165,6 @@ describe("POST /users", () => {
   });
 });
 
-
 describe("PUT /users/:id/vote", () => {
   describe("when the id is valid", () => {
     it("should return a message and the user upvoted by 1", () => {
@@ -232,9 +237,7 @@ describe("PUT /users/:id/vote", () => {
     });
   });
   });
-
-
-
+  
   describe("POST /users/search", () => {
     it("should work like a fuzzy search so should return users without full title", () => {
       const search = {
@@ -251,171 +254,206 @@ describe("PUT /users/:id/vote", () => {
     });
   });
 
-  describe("Reviewss", () => {
-    before(async () => {
-      try {
-        mongod = new MongoMemoryServer({
-          instance: {
-            port: 27017,
-            dbPath: "./test/database",
-            dbName: "reviewsdb" // by default generate random dbName
+
+
+
+describe("Reviewss", () => {
+  before(async () => {
+    try {
+      mongod = new MongoMemoryServer({
+        instance: {
+          port: 27017,
+          dbPath: "./test/database",
+          dbName: "reviewsdb" // by default generate random dbName
+        }
+      });
+      // Async Trick - this ensures the database is created before 
+      // we try to connect to it or start the server
+      await mongod.getConnectionString();
+ 
+      mongoose.connect("mongodb://localhost:27017/reviewsdb", {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      });
+      server = require("../../../bin/www");
+      db = mongoose.connection;
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  after(async () => {
+    try {
+      await db.dropDatabase();
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  beforeEach(async () => {
+    try {
+      await Review.deleteMany({});
+      let review = new Review();
+      review.review = "visa";
+      review.upvotes = 2;
+      await review.save();
+      review = new Review();
+      review.review = "very bad";
+      await review.save();
+      validID = review._id;
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  describe("GET /reviews", () => {
+    it("should GET all the reviews", done => {
+      request(server)
+        .get("/reviews")
+        .set("Accept", "application/json")
+        .expect("Content-Type", /json/)
+        .expect(200)
+        .end((err, res) => {
+          try {
+            expect(res.body).to.be.a("array");
+            expect(res.body.length).to.equal(2);
+            let result = _.map(res.body, review => {
+              return {
+                review: review.review
+              };
+            });
+            expect(result).to.deep.include({
+              review: "visa"
+            });
+            expect(result).to.deep.include({
+              review: "visa"
+            });
+            done();
+          } catch (e) {
+            done(e);
           }
         });
-        // Async Trick - this ensures the database is created before 
-        // we try to connect to it or start the server
-        await mongod.getConnectionString();
-   
-        mongoose.connect("mongodb://localhost:27017/reviewsdb", {
-          useNewUrlParser: true,
-          useUnifiedTopology: true
-        });
-        server = require("../../../bin/www");
-        db = mongoose.connection;
-      } catch (error) {
-        console.log(error);
-      }
     });
-  
-    after(async () => {
-      try {
-        await db.dropDatabase();
-      } catch (error) {
-        console.log(error);
-      }
-    });
-  
-    beforeEach(async () => {
-      try {
-        await Review.deleteMany({});
-        let review = new Review();
-        review.review = "visa";
-        review.upvotes = 2;
-        await review.save();
-        review = new Review();
-        review.review = "very bad";
-        await review.save();
-        validID = review._id;
-      } catch (error) {
-        console.log(error);
-      }
-    });
-  
-    describe("GET /reviews", () => {
-      it("should GET all the reviews", done => {
+  });
+
+  describe("GET /reviews/:id", () => {
+    describe("when the id is valid", () => {
+      it("should return the matching review", done => {
         request(server)
-          .get("/reviews")
+          .get(`/reviews/${validID}`)
           .set("Accept", "application/json")
           .expect("Content-Type", /json/)
           .expect(200)
           .end((err, res) => {
-            try {
-              expect(res.body).to.be.a("array");
-              expect(res.body.length).to.equal(2);
-              let result = _.map(res.body, review => {
-                return {
-                  review: review.review
-                };
-              });
-              expect(result).to.deep.include({
-                review: "visa"
-              });
-              expect(result).to.deep.include({
-                review: "visa"
-              });
-              done();
-            } catch (e) {
-              done(e);
-            }
+            done(err);
           });
       });
     });
-    describe("GET /reviews/:id", () => {
-      describe("when the id is valid", () => {
-        it("should return the matching review", done => {
-          request(server)
-            .get(`/reviews/${validID}`)
-            .set("Accept", "application/json")
-            .expect("Content-Type", /json/)
-            .expect(200)
-            .end((err, res) => {
-              done(err);
-            });
-        });
-      });
-      describe("when the id is invalid", () => {
-        it("should return the NOT found message", done => {
-          request(server)
-            .get("/reviews/9999")
-            .set("Accept", "application/json")
-            .expect("Content-Type", /json/)
-            .expect(200)
-            .end((err, res) => {
-              expect(res.body.message).equals("Review NOT Found!");
-              done(err);
-            });
-        });
-      });
-    });
-
-    describe("POST /reviews", () => {
-      it("should return confirmation message and update datastore", () => {
-        const review = {
-          review: "very good",
-          upvotes: 0
-        };
-        return request(server)
-          .post("/reviews")
-          .send(review)
+    describe("when the id is invalid", () => {
+      it("should return the NOT found message", done => {
+        request(server)
+          .get("/reviews/9999")
+          .set("Accept", "application/json")
+          .expect("Content-Type", /json/)
           .expect(200)
-          .then(res => {
-            expect(res.body.message).equals("Review Successfully Added!");
-            validID = res.body.data._id;
+          .end((err, res) => {
+            expect(res.body.message).equals("Review NOT Found!");
+            done(err);
           });
+      });
+    });
+  });
+  
+  describe("POST /reviews", () => {
+    it("should return confirmation message and update datastore", () => {
+      const review = {
+        review: "very good",
+        upvotes: 0
+      };
+      return request(server)
+        .post("/reviews")
+        .send(review)
+        .expect(200)
+        .then(res => {
+          expect(res.body.message).equals("Review Successfully Added!");
+          validID = res.body.data._id;
+        });
+    });
+    after(() => {
+      return request(server)
+        .get(`/reviews/${validID}`)
+        .expect(200)
+        .then(res => {
+          expect(res.body[0]).to.have.property("review", "very good");
+         
+        });
+    });
+  });
+  
+
+  describe("PUT /reviews/:id/vote", () => {
+    describe("when the id is valid", () => {
+      it("should return a message and the review upvoted by 1", () => {
+        return request(server)
+          .put(`/reviews/${validID}/vote`)
+          .expect(200)
       });
       after(() => {
         return request(server)
           .get(`/reviews/${validID}`)
+          .set("Accept", "application/json")
+          .expect("Content-Type", /json/)
           .expect(200)
-          .then(res => {
-            expect(res.body[0]).to.have.property("review", "very good");
-           
+          .then(resp => {
+            expect(resp.body[0]).to.have.property("upvotes", 1);
           });
       });
     });
-    
-    describe("PUT /reviews/:id/vote", () => {
-      describe("when the id is valid", () => {
-        it("should return a message and the review upvoted by 1", () => {
-          return request(server)
-            .put(`/reviews/${validID}/vote`)
-            .expect(200)
-        });
-        after(() => {
-          return request(server)
-            .get(`/reviews/${validID}`)
-            .set("Accept", "application/json")
-            .expect("Content-Type", /json/)
-            .expect(200)
-            .then(resp => {
-              expect(resp.body[0]).to.have.property("upvotes", 1);
-            });
-        });
-      });
-      describe("when the id is invalid", () => {
-        it("should return a 404 and a message for invalid review id", () => {
-          return request(server)
-            .put("/reviews/1100001/vote")
-            .expect(200);
-      });
+    describe("when the id is invalid", () => {
+      it("should return a 404 and a message for invalid review id", () => {
+        return request(server)
+          .put("/reviews/1100001/vote")
+          .expect(200);
     });
   });
-
-
-
-
-
-});
 });
 
-
-
+describe('DELETE /reviews/:id', function () {
+  describe('when id is valid', function () {
+      it('should return a confirmation message and the deleted review', function(done) {
+          chai.request(server)
+              .delete('/reviews/1000001')
+              .end( (err, res) => {
+                  expect(res).to.have.status(200);
+                  expect(res.body).to.have.property('message','Review NOT DELETED!' ) ;
+                  done();
+              });
+      });
+      after(function  (done) {
+          chai.request(server)
+              .get('/reviews')
+              .end(function(err, res) {
+                  expect(res).to.have.status(200);
+                  expect(res.body).be.be.a('array');
+                  let result = _.map(res.body, function (review) {
+                      return { review: review.review };
+                  }  );
+                  expect(result).to.not.include( { review: 'Visa'} );
+                  done();
+              });
+      });
+  });
+  describe('when id is invalid', function () {
+      it('should return an error message', function(done) {
+          chai.request(server)
+              .delete('/reviews/1000002')
+              .end( (err, res) => {
+                  expect(res).to.have.status(200);
+                  expect(res.body).to.have.property('message','Review NOT DELETED!' ) ;
+                  done();
+              });
+      });
+  });
+});
+});
+});
