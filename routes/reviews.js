@@ -26,6 +26,7 @@ router.findAll = (req, res) => {
       res.send(err)
 
     res.send(JSON.stringify(reviews,null,5))
+    
   })
 }
 
