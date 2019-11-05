@@ -1,7 +1,9 @@
 # Assignment 1 - Agile Software Practice.
 
 Alanas Jakonis
+
 20076515
+
 Software Systems Development
 
 ## Overview.
@@ -11,18 +13,30 @@ Reviews of users , each review has upvotes. Users have name,address,gender and u
 ## API endpoints.
 
 app.get('/reviews/votes', reviews.findTotalVotes); //Find total ammount votedon reviews
+
 app.post('/reviews',reviews.addReview); // Add review
+
 app.get('/reviews', reviews.findAll); // Get all reviews
+
 app.get('/reviews/:id', reviews.findOne); // Get induvidual review by id
+
 app.put('/reviews/:id/vote', reviews.incrementUpvotes); // Upvote review by id
+
 app.delete('/reviews/:id', reviews.deleteReview);  // Delete review by id
 
+
 app.post('/users',users.addUser); // Add user
+
 app.post('/users/search', users.findFuzzy); // Fuzzy serach an user
+
 app.get('/users', users.findAll); // Get all users
+
 app.get('/users/votes', users.findTotalVotes); //Find total ammount votedon users
+
 app.get('/users/:id', users.findOne); // Get induvidual user by id
+
 app.put('/users/:id/vote', users.incrementUppoints); // Upvote user by id
+
 app.delete('/users/:id', users.deleteUser); // Delete user by id
 
 ## Data model.
